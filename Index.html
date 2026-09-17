@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dunia Kerja Teknologi Farmasi - SMK Kelas X</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome CDN untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Nunito (Ramah anak dan mudah dibaca) -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        pharma: {
+                            light: '#f0fdf4', // hijau sangat muda (bersih)
+                            green: '#10b981', // emerald-500
+                            blue: '#0ea5e9', // sky-500
+                            yellow: '#f59e0b', // amber-500
+                            white: '#ffffff',
+                            dark: '#1e293b' // slate-800
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Animasi CSS Kustom */
+        body {
+            background-color: #f0fdf4; /* pharma.light */
+        }
+
+        /* Animasi Mengambang untuk Ikon */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Animasi Mengambil Obat (Simulasi Rak ke Keranjang) */
+        @keyframes pickMedicine {
+            0% { transform: translate(0, 0) scale(1); opacity: 1;}
+            50% { transform: translate(50px, -30px) scale(1.2); opacity: 0.8;}
+            100% { transform: translate(100px, 50px) scale(0.5); opacity: 0;}
+        }
+        .anim-pick:hover i {
+            animation: pickMedicine 1s forwards;
+        }
+
+        /* Transisi Tab (Fade in) */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Style khusus Drag & Drop */
+        .draggable {
+            cursor: grab;
+            transition: transform 0.2s;
+        }
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+        .dropzone {
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .dropzone.dragover {
+            background-color: #d1fae5; /* emerald-100 */
+            border-color: #10b981; /* emerald-500 */
+            border-width: 3px;
+        }
+
+        /* Menyembunyikan scrollbar agar lebih rapi */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10b981; 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #059669; 
+        }
+    </style>
+</head>
+<body class="text-pharma-dark font-sans flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-wrap justify-between items-center">
+                <!-- Logo & Judul -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-pharma-green text-white p-2 rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-staff-snake text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-xl md:text-2xl text-pharma-green">Farmasi<span class="text-pharma-yellow">Edu</span></h1>
+                        <p class="text-xs text-gray-500 font-semibold hidden md:block">Eksplorasi Dunia Kerja Teknologi Farmasi</p>
+                    </div>
+                </div>
+
+                <!-- Tombol Menu Mobile -->
+                <button id="mobileMenuBtn" class="md:hidden text-pharma-green focus:outline-none text-2xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <!-- Navigasi Menu -->
+                <nav id="navMenu" class="hidden w-full md:flex md:w-auto md:items-center mt-4 md:mt-0">
+                    <ul class="flex flex-col md:flex-row gap-2 md:gap-1 text-base md:text-lg font-bold">
+                        <li><button onclick="openTab('home')" class="nav-btn w-full text-left md:text-center px-4 py-2 rounded-xl text-pharma-green bg-emerald-50 hover:bg-pharma-green hover:text-white transition-all"><i class="fa-solid fa-house mr-2"></i>Home</button></li>
+                        <li><button onclick="openTab('tujuan')" class="nav-btn w-full text-left md:text-center px-4 py-2 rounded-xl text-gray-600 hover:bg-pharma-blue hover:text-white transition-all"><i class="fa-solid fa-bullseye mr-2"></i>Tujuan</button></li>
+                        <li><button onclick="openTab('materi')" class="nav-btn w-full text-left md:text-center px-4 py-2 rounded-xl text-gray-600 hover:bg-pharma-yellow hover:text-white transition-all"><i class="fa-solid fa-book-open mr-2"></i>Materi</button></li>
+                        <li><button onclick="openTab('kuis')" class="nav-btn w-full text-left md:text-center px-4 py-2 rounded-xl text-gray-600 hover:bg-pharma-green hover:text-white transition-all"><i class="fa-solid fa-gamepad mr-2"></i>Kuis</button></li>
+                        <li><button onclick="openTab('dragdrop')" class="nav-btn w-full text-left md:text-center px-4 py-2 rounded-xl text-gray-600 hover:bg-pharma-blue hover:text-white transition-all"><i class="fa-solid fa-hand-pointer mr-2"></i>Bermain</button></li>
+                        <li><button onclick="openTab('tentang')" class="nav-btn w-full text-left md:text-center px-4 py-2 rounded-xl text-gray-600 hover:bg-pharma-yellow hover:text-white transition-all"><i class="fa-solid fa-circle-info mr-2"></i>Tentang</button></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        
+        <!-- ==================== TAB: HOME ==================== -->
+        <section id="home" class="tab-content active">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row items-center">
+                <!-- Teks Info -->
+                <div class="p-8 md:p-12 w-full md:w-1/2">
+                    <span class="inline-block px-4 py-1 bg-pharma-yellow text-white rounded-full text-sm font-bold mb-4 shadow-sm">SMK Kelas X - Fase E</span>
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-pharma-dark mb-4 leading-tight">
+                        Selamat Datang di <span class="text-pharma-green">Dunia Kerja</span> Farmasi!
+                    </h2>
+                    <p class="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
+                        Mari kita mulai petualangan seru mengenal profesi, alat, dan tempat kerja para pahlawan kesehatan di bidang Teknologi Farmasi.
+                    </p>
+                    <button onclick="openTab('materi')" class="bg-pharma-blue hover:bg-blue-600 text-white font-bold text-xl py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                        Mulai Belajar <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+                <!-- Animasi/Visualisasi -->
+                <div class="w-full md:w-1/2 bg-emerald-50 p-12 relative flex justify-center items-center min-h-[400px]">
+                    <!-- Ornamen Latar -->
+                    <div class="absolute top-10 left-10 text-pharma-yellow opacity-50 animate-float"><i class="fa-solid fa-star text-4xl"></i></div>
+                    <div class="absolute bottom-20 right-10 text-pharma-blue opacity-50 animate-float" style="animation-delay: 1s;"><i class="fa-solid fa-plus text-5xl"></i></div>
+                    
+                    <!-- Ilustrasi Rak Obat (Interaktif) -->
+                    <div class="relative w-full max-w-sm bg-white p-6 rounded-2xl shadow-2xl border-4 border-pharma-green anim-pick cursor-pointer">
+                        <h3 class="text-center font-bold text-pharma-green mb-4 border-b-2 border-emerald-100 pb-2">Simulasi Apotek (Sentuh Aku!)</h3>
+                        
+                        <!-- Rak Atas -->
+                        <div class="w-full h-4 bg-amber-200 rounded mb-6 flex justify-around relative">
+                            <i class="fa-solid fa-prescription-bottle-medical text-4xl text-pharma-blue absolute bottom-0"></i>
+                            <i class="fa-solid fa-pills text-3xl text-pharma-yellow absolute bottom-0 left-1/2"></i>
+                        </div>
+                        
+                        <!-- Rak Bawah -->
+                        <div class="w-full h-4 bg-amber-200 rounded mb-4 flex justify-around relative">
+                            <i class="fa-solid fa-flask text-4xl text-pharma-green absolute bottom-0 left-1/4"></i>
+                            <i class="fa-solid fa-tablets text-3xl text-rose-500 absolute bottom-0 right-1/4"></i>
+                        </div>
+                        
+                        <!-- Keranjang Penerima -->
+                        <div class="mt-8 flex justify-end">
+                            <i class="fa-solid fa-basket-shopping text-5xl text-gray-400"></i>
+                        </div>
+                        <p class="text-center text-xs text-gray-400 mt-2">Arahkan kursor ke sini untuk melihat obat berpindah!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tujuan" class="tab-content">
+            <div class="bg-white rounded-3xl shadow-lg p-8 md:p-12 border-t-8 border-pharma-blue">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-pharma-dark"><i class="fa-solid fa-bullseye text-pharma-blue mr-3"></i>Tujuan Pembelajaran</h2>
+                    <p class="text-xl text-gray-500 mt-2">Setelah belajar ini, kamu diharapkan mampu:</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Item 1 -->
+                    <div class="flex items-start p-6 bg-blue-50 rounded-2xl hover:shadow-md transition-shadow">
+                        <div class="bg-pharma-blue text-white p-4 rounded-xl text-2xl mr-4"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <div>
+                            <h3 class="text-xl font-bold text-pharma-dark mb-2">Memahami Profesi</h3>
+                            <p class="text-gray-600 text-lg">Mengenal berbagai macam profesi dan peluang kerja di bidang farmasi (Apoteker, Tenaga Teknis Kefarmasian).</p>
+                        </div>
+                    </div>
+                    <!-- Item 2 -->
+                    <div class="flex items-start p-6 bg-emerald-50 rounded-2xl hover:shadow-md transition-shadow">
+                        <div class="bg-pharma-green text-white p-4 rounded-xl text-2xl mr-4"><i class="fa-solid fa-building"></i></div>
+                        <div>
+                            <h3 class="text-xl font-bold text-pharma-dark mb-2">Mengenal Tempat Kerja</h3>
+                            <p class="text-gray-600 text-lg">Mengetahui fungsi dari Industri Farmasi, Rumah Sakit, Apotek, dan Pedagang Besar Farmasi (PBF).</p>
+                        </div>
+                    </div>
+                    <!-- Item 3 -->
+                    <div class="flex items-start p-6 bg-amber-50 rounded-2xl hover:shadow-md transition-shadow">
+                        <div class="bg-pharma-yellow text-white p-4 rounded-xl text-2xl mr-4"><i class="fa-solid fa-vial"></i></div>
+                        <div>
+                            <h3 class="text-xl font-bold text-pharma-dark mb-2">Proses Kefarmasian</h3>
+                            <p class="text-gray-600 text-lg">Memahami gambaran umum dari proses produksi, distribusi, hingga pelayanan obat ke pasien.</p>
+                        </div>
+                    </div>
+                    <!-- Item 4 -->
+                    <div class="flex items-start p-6 bg-purple-50 rounded-2xl hover:shadow-md transition-shadow">
+                        <div class="bg-purple-500 text-white p-4 rounded-xl text-2xl mr-4"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <div>
+                            <h3 class="text-xl font-bold text-pharma-dark mb-2">Sikap Profesional</h3>
+                            <p class="text-gray-600 text-lg">Menumbuhkan sikap teliti, bersih, bertanggung jawab, dan mengutamakan keselamatan pasien.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="materi" class="tab-content">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-center text-pharma-dark mb-10">
+                <i class="fa-solid fa-book-open text-pharma-green mr-3"></i>Materi Wawasan Dunia Kerja
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Kartu 1: Industri Farmasi -->
+                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border-2 border-transparent hover:border-pharma-blue transition-all group">
+                    <div class="bg-blue-100 p-8 flex justify-center items-center h-48 group-hover:bg-pharma-blue transition-colors">
+                        <i class="fa-solid fa-industry text-6xl text-pharma-blue group-hover:text-white transition-colors animate-float"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-pharma-dark mb-3">Industri Farmasi</h3>
+                        <p class="text-gray-600 mb-4 text-base">Tempat obat dibuat dalam skala sangat besar. Menggunakan mesin canggih untuk membuat tablet, sirup, atau salep.</p>
+                        <ul class="text-sm text-gray-500 list-disc list-inside">
+                            <li>Produksi Skala Besar</li>
+                            <li>Quality Control (QC)</li>
+                            <li>Formulasi Obat Baru</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Kartu 2: Apotek -->
+                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border-2 border-transparent hover:border-pharma-green transition-all group">
+                    <div class="bg-emerald-100 p-8 flex justify-center items-center h-48 group-hover:bg-pharma-green transition-colors">
+                        <i class="fa-solid fa-store text-6xl text-pharma-green group-hover:text-white transition-colors animate-float" style="animation-delay: 0.2s;"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-pharma-dark mb-3">Apotek</h3>
+                        <p class="text-gray-600 mb-4 text-base">Fasilitas pelayanan langsung ke pasien. Tempat membaca resep dokter dan meracik obat untuk masyarakat.</p>
+                        <ul class="text-sm text-gray-500 list-disc list-inside">
+                            <li>Pelayanan Resep</li>
+                            <li>Konsultasi Obat</li>
+                            <li>Meracik Obat (Puyer)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Kartu 3: Rumah Sakit -->
+                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border-2 border-transparent hover:border-red-400 transition-all group">
+                    <div class="bg-red-100 p-8 flex justify-center items-center h-48 group-hover:bg-red-400 transition-colors">
+                        <i class="fa-solid fa-hospital text-6xl text-red-500 group-hover:text-white transition-colors animate-float" style="animation-delay: 0.4s;"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-pharma-dark mb-3">Rumah Sakit</h3>
+                        <p class="text-gray-600 mb-4 text-base">Instalasi Farmasi yang mengelola obat untuk pasien rawat inap dan rawat jalan. Berkolaborasi dengan dokter & perawat.</p>
+                        <ul class="text-sm text-gray-500 list-disc list-inside">
+                            <li>Obat Rawat Inap (UDD)</li>
+                            <li>Sterilisasi Alat Medis</li>
+                            <li>Penanganan Obat Darurat</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Kartu 4: PBF -->
+                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border-2 border-transparent hover:border-pharma-yellow transition-all group">
+                    <div class="bg-amber-100 p-8 flex justify-center items-center h-48 group-hover:bg-pharma-yellow transition-colors">
+                        <i class="fa-solid fa-truck-medical text-6xl text-pharma-yellow group-hover:text-white transition-colors animate-float" style="animation-delay: 0.6s;"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-pharma-dark mb-3">Pedagang Besar Farmasi (PBF)</h3>
+                        <p class="text-gray-600 mb-4 text-base">Pusat distribusi yang mendistribusikan obat dari Pabrik ke Apotek, Klinik, dan Rumah Sakit.</p>
+                        <ul class="text-sm text-gray-500 list-disc list-inside">
+                            <li>Gudang Penyimpanan</li>
+                            <li>Distribusi Aman (Rantai Dingin)</li>
+                            <li>Pencatatan Stok</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="kuis" class="tab-content">
+            <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
+                <div class="bg-pharma-green p-6 text-center">
+                    <h2 class="text-3xl font-extrabold text-white"><i class="fa-solid fa-brain mr-3"></i>Kuis Menyenangkan!</h2>
+                    <p class="text-emerald-100 mt-2 text-lg">Uji pengetahuanmu tentang dunia kerja farmasi.</p>
+                </div>
+                
+                <div class="p-8">
+                    <!-- Area Pertanyaan -->
+                    <div id="quiz-container">
+                        <div class="mb-6 flex justify-between items-center text-sm font-bold text-gray-500 border-b-2 pb-2">
+                            <span>Pertanyaan <span id="q-current" class="text-pharma-green text-xl">1</span> dari <span id="q-total">3</span></span>
+                            <span id="score-display" class="bg-amber-100 text-pharma-yellow px-3 py-1 rounded-full">Skor: 0</span>
+                        </div>
+                        
+                        <h3 id="question-text" class="text-2xl font-bold text-pharma-dark mb-6 leading-relaxed">
+                            -- Pertanyaan --
+                        </h3>
+                        
+                        <div id="options-container" class="space-y-3">
+                            <!-- Tombol opsi dibuat via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Area Hasil -->
+                    <div id="result-container" class="hidden text-center py-10">
+                        <i class="fa-solid fa-trophy text-6xl text-pharma-yellow mb-4 animate-bounce"></i>
+                        <h3 class="text-3xl font-extrabold text-pharma-dark mb-2">Kuis Selesai!</h3>
+                        <p class="text-xl text-gray-600 mb-6">Skor Akhir Kamu: <span id="final-score" class="font-bold text-pharma-green text-3xl">0</span></p>
+                        <p id="feedback-msg" class="text-lg mb-8 font-semibold"></p>
+                        <button onclick="initQuiz()" class="bg-pharma-blue hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-md text-lg">
+                            <i class="fa-solid fa-rotate-right mr-2"></i>Ulangi Kuis
+                        </button>
+                    </div>
+                    
+                    <!-- Kotak Pesan Notifikasi (Pengganti Alert) -->
+                    <div id="quiz-msg-box" class="hidden mt-6 p-4 rounded-xl text-center font-bold text-lg transition-all">
+                        <!-- Pesan benar/salah muncul disini -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="dragdrop" class="tab-content">
+            <div class="bg-white rounded-3xl shadow-lg p-8 md:p-10 border-t-8 border-pharma-yellow">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-pharma-dark"><i class="fa-solid fa-puzzle-piece text-pharma-yellow mr-3"></i>Cocokkan Pekerjaannya!</h2>
+                    <p class="text-lg text-gray-500 mt-2">Tarik item di kotak biru (bawah) dan lepaskan ke tempat kerja yang tepat di atas. (Jika menggunakan HP, kamu bisa tap item lalu tap tempatnya).</p>
+                </div>
+
+                <!-- Notifikasi Drag Drop -->
+                <div id="dd-notification" class="hidden mb-6 p-4 bg-emerald-100 text-pharma-green rounded-xl text-center font-bold text-xl border-2 border-pharma-green shadow-sm transition-all">
+                    Hebat! Cocok sekali!
+                </div>
+
+                <!-- Tempat Kerja (Drop Zones) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="dropzone p-6 bg-slate-50 border-4 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center min-h-[180px]" data-target="industri">
+                        <i class="fa-solid fa-industry text-4xl text-gray-400 mb-2"></i>
+                        <h3 class="font-bold text-xl text-gray-600">Industri Farmasi</h3>
+                        <div class="dropped-items w-full mt-4 flex flex-col gap-2"></div>
+                    </div>
+                    <div class="dropzone p-6 bg-slate-50 border-4 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center min-h-[180px]" data-target="apotek">
+                        <i class="fa-solid fa-store text-4xl text-gray-400 mb-2"></i>
+                        <h3 class="font-bold text-xl text-gray-600">Apotek</h3>
+                        <div class="dropped-items w-full mt-4 flex flex-col gap-2"></div>
+                    </div>
+                    <div class="dropzone p-6 bg-slate-50 border-4 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center min-h-[180px]" data-target="pbf">
+                        <i class="fa-solid fa-truck-medical text-4xl text-gray-400 mb-2"></i>
+                        <h3 class="font-bold text-xl text-gray-600">PBF (Distribusi)</h3>
+                        <div class="dropped-items w-full mt-4 flex flex-col gap-2"></div>
+                    </div>
+                </div>
+
+                <!-- Item (Draggables) -->
+                <div class="bg-blue-50 p-6 rounded-2xl border-2 border-pharma-blue">
+                    <h4 class="text-center font-bold text-pharma-blue mb-4">Daftar Benda / Pekerjaan (Tarik ini!)</h4>
+                    <div class="flex flex-wrap justify-center gap-4" id="draggable-container">
+                        <!-- Items akan di-generate via JS agar bisa di-reset -->
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="resetDragDrop()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-full">
+                        <i class="fa-solid fa-rotate mr-2"></i>Reset Permainan
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="tentang" class="tab-content">
+            <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border-t-8 border-pharma-green">
+                <div class="p-10 text-center flex flex-col items-center">
+                    <div class="w-32 h-32 bg-emerald-100 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-lg relative -top-4">
+                        <i class="fa-solid fa-user-graduate text-6xl text-pharma-green"></i>
+                    </div>
+                    
+                    <h2 class="text-3xl font-extrabold text-pharma-dark mb-2">Tentang Pengembang</h2>
+                    <h3 class="text-2xl text-pharma-blue font-bold mb-6">Muhammad Imam Faqkhuddin</h3>
+                    
+                    <div class="bg-slate-50 p-6 rounded-2xl text-left w-full shadow-inner mb-6">
+                        <p class="text-lg text-gray-700 mb-3"><i class="fa-solid fa-chalkboard-user text-pharma-yellow mr-3 w-6"></i><strong>Profesi:</strong> Guru SMK (Bidang Keahlian Teknologi Farmasi)</p>
+                        <p class="text-lg text-gray-700 mb-3"><i class="fa-solid fa-users text-pharma-yellow mr-3 w-6"></i><strong>Sasaran:</strong> Siswa SMK Kelas X (Fase E)</p>
+                        <p class="text-lg text-gray-700"><i class="fa-solid fa-bullseye text-pharma-yellow mr-3 w-6"></i><strong>Tujuan Pembuatan:</strong> Media interaktif berbasis web ini dibuat untuk mempermudah pemahaman siswa baru terkait gambaran luas dunia kerja di industri kesehatan dan kefarmasian secara menyenangkan.</p>
+                    </div>
+
+                    <p class="text-sm text-gray-400">
+                        &copy; 2024 FarmasiEdu - Dibuat khusus untuk pendidikan vokasi Indonesia.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-pharma-dark text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="font-bold">FarmasiEdu &copy; 2024 - Muhammad Imam Faqkhuddin</p>
+            <p class="text-sm text-gray-400 mt-2">Media Pembelajaran Interaktif SMK Farmasi Fase E</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // 1. SISTEM NAVIGASI TAB (Single Page App)
+        // ==========================================
+        function openTab(tabId) {
+            // Sembunyikan semua tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Hapus styling aktif di semua tombol
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-pharma-green', 'bg-pharma-blue', 'bg-pharma-yellow', 'text-white');
+                btn.classList.add('text-gray-600');
+                
+                // Kembalikan warna default bg-emerald-50 untuk menu Home jika sedang tidak aktif
+                if(btn.innerHTML.includes('Home')) btn.classList.remove('bg-emerald-50');
+            });
+
+            // Tampilkan tab yang dipilih
+            document.getElementById(tabId).classList.add('active');
+            
+            // Beri styling aktif pada tombol yang ditekan (berdasarkan onClick attribute)
+            const activeBtn = document.querySelector(`button[onclick="openTab('${tabId}')"]`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-gray-600');
+                activeBtn.classList.add('text-white');
+                
+                // Beri warna sesuai tab
+                if(tabId === 'home') activeBtn.classList.add('bg-pharma-green');
+                else if(tabId === 'tujuan') activeBtn.classList.add('bg-pharma-blue');
+                else if(tabId === 'materi') activeBtn.classList.add('bg-pharma-yellow');
+                else if(tabId === 'kuis') activeBtn.classList.add('bg-pharma-green');
+                else if(tabId === 'dragdrop') activeBtn.classList.add('bg-pharma-blue');
+                else if(tabId === 'tentang') activeBtn.classList.add('bg-pharma-yellow');
+            }
+
+            // Tutup menu mobile jika terbuka
+            document.getElementById('navMenu').classList.add('hidden');
+        }
+
+        // Toggle Mobile Menu
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('navMenu').classList.toggle('hidden');
+        });
+
+        // Set Tab awal
+        openTab('home');
+
+
+        // ==========================================
+        // 2. SISTEM KUIS INTERAKTIF
+        // ==========================================
+        const quizData = [
+            {
+                question: "Di mana tempat yang memproduksi obat dalam skala sangat besar menggunakan mesin canggih?",
+                options: ["Apotek", "Rumah Sakit", "Industri Farmasi", "Puskesmas"],
+                answer: 2
+            },
+            {
+                question: "Seorang tenaga farmasi sedang meracik puyer untuk anak dan menyerahkannya ke pasien. Ia sedang bekerja di...",
+                options: ["Pedagang Besar Farmasi (PBF)", "Apotek", "Pabrik Obat", "Gudang Farmasi"],
+                answer: 1
+            },
+            {
+                question: "Tempat yang berfungsi mendistribusikan atau menyalurkan obat dalam jumlah banyak dari pabrik ke apotek disebut?",
+                options: ["Klinik Bersalin", "PBF (Pedagang Besar Farmasi)", "Instalasi Farmasi Rumah Sakit", "Puskesmas"],
+                answer: 1
+            },
+            {
+                question: "Siapa pimpinan dan penanggung jawab penuh di sebuah Apotek?",
+                options: ["Dokter Umum", "Perawat", "Apoteker", "Asisten Apoteker"],
+                answer: 2
+            },
+            {
+                question: "Apa kepanjangan dari PBF dalam dunia kerja farmasi?",
+                options: ["Pedagang Besar Farmasi", "Pusat Belanja Farmasi", "Pabrik Buatan Farmasi", "Persatuan Bapak Farmasi"],
+                answer: 0
+            },
+            {
+                question: "CPOB adalah pedoman yang harus diterapkan saat membuat obat di Industri Farmasi. 'C' pada CPOB singkatan dari...",
+                options: ["Cepat", "Cara", "Cerdas", "Catatan"],
+                answer: 1
+            },
+            {
+                question: "Wadah kaca kecil yang disegel rapat dan berisi cairan obat suntik untuk sekali pakai (dosis tunggal) disebut...",
+                options: ["Botol", "Vial", "Ampul", "Blister"],
+                answer: 2
+            },
+            {
+                question: "Sedangkan wadah kaca obat suntik yang ditutup dengan karet dan bisa ditusuk jarum berkali-kali disebut...",
+                options: ["Ampul", "Vial", "Kapsul", "Tube"],
+                answer: 1
+            },
+            {
+                question: "Lulusan SMK Farmasi yang bekerja membantu pelayanan obat di apotek disebut dengan profesi...",
+                options: ["Apoteker", "Asisten Tenaga Kefarmasian", "Dokter Spesialis", "Analis Kesehatan"],
+                answer: 1
+            },
+            {
+                question: "Warna standar jas laboratorium (jas lab) yang biasa digunakan di bidang farmasi dan kesehatan adalah...",
+                options: ["Hitam", "Kuning", "Merah", "Putih"],
+                answer: 3
+            },
+            {
+                question: "Beberapa jenis obat khusus seperti vaksin dan suppositoria harus disimpan di...",
+                options: ["Rak kayu biasa", "Lemari pendingin (kulkas) bersuhu 2-8°C", "Etalase depan", "Gudang yang panas"],
+                answer: 1
+            },
+            {
+                question: "Obat yang berbentuk bubuk halus dan biasanya dibungkus dengan kertas perkamen disebut...",
+                options: ["Kapsul", "Tablet", "Serbuk/Puyer", "Pil"],
+                answer: 2
+            },
+            {
+                question: "Sediaan cair yang rasanya manis, kental, dan sangat disukai anak-anak disebut...",
+                options: ["Sirup", "Salep", "Injeksi", "Emulsi"],
+                answer: 0
+            },
+            {
+                question: "Sediaan obat berbentuk cangkang (biasanya terbuat dari gelatin) yang berisi serbuk obat disebut...",
+                options: ["Tablet", "Kapsul", "Sirup", "Pil"],
+                answer: 1
+            },
+            {
+                question: "Sediaan obat setengah padat yang pemakaiannya dioleskan pada kulit dinamakan...",
+                options: ["Tablet", "Sirup", "Salep/Krim", "Kapsul"],
+                answer: 2
+            },
+            {
+                question: "Logo lingkaran berwarna HIJAU dengan tepi hitam pada kemasan obat menandakan bahwa obat tersebut tergolong...",
+                options: ["Obat Keras", "Obat Bebas", "Narkotika", "Obat Tradisional"],
+                answer: 1
+            },
+            {
+                question: "Logo lingkaran berwarna BIRU dengan tepi hitam menunjukkan bahwa obat tersebut tergolong...",
+                options: ["Obat Keras", "Obat Bebas Terbatas", "Obat Bebas", "Jamu"],
+                answer: 1
+            },
+            {
+                question: "Tanda huruf 'K' di dalam lingkaran berwarna MERAH bertepi hitam menunjukkan golongan obat...",
+                options: ["Bebas", "Bebas Terbatas", "Keras", "Herbal"],
+                answer: 2
+            },
+            {
+                question: "Bagian di Rumah Sakit yang khusus mengelola, meracik, dan melayani kebutuhan obat pasien adalah...",
+                options: ["Instalasi Gizi", "Instalasi Gawat Darurat", "Instalasi Farmasi Rumah Sakit", "Laboratorium"],
+                answer: 2
+            },
+            {
+                question: "Alat berbentuk mangkuk dari porselen tebal untuk menggerus dan mencampur obat di apotek disebut...",
+                options: ["Gelas Ukur", "Mortir (Lumpang)", "Pipet", "Tabung Reaksi"],
+                answer: 1
+            },
+            {
+                question: "Alat dari porselen yang menjadi pasangan mortir, digunakan sebagai alat penumbuknya disebut...",
+                options: ["Stamper (Alu)", "Spatula", "Corong", "Pinset"],
+                answer: 0
+            },
+            {
+                question: "Singkatan FIFO (First In First Out) dalam penyusunan obat di rak apotek berarti...",
+                options: ["Obat yang masuk/dibeli pertama, harus dikeluarkan (dijual) pertama", "Obat mahal dijual duluan", "Obat kedaluwarsa dibuang", "Obat bebas dijual bebas"],
+                answer: 0
+            },
+            {
+                question: "Sedangkan sistem FEFO (First Expired First Out) berarti...",
+                options: ["Obat yang paling murah dijual duluan", "Obat yang masa kedaluwarsanya paling dekat (awal) dijual lebih dulu", "Obat luar tidak boleh diminum", "Obat sirup disimpan di kulkas"],
+                answer: 1
+            },
+            {
+                question: "Etiket atau stiker label berwarna PUTIH yang ditempel pada plastik klip obat menandakan obat tersebut digunakan untuk...",
+                options: ["Pemakaian Luar (kulit)", "Pemakaian Dalam (diminum/masuk saluran cerna)", "Diteteskan ke mata", "Disuntikkan"],
+                answer: 1
+            },
+            {
+                question: "Sebaliknya, etiket berwarna BIRU digunakan untuk obat...",
+                options: ["Pemakaian Dalam (diminum)", "Pemakaian Luar (salep, tetes telinga, supositoria)", "Obat sirup saja", "Obat anak-anak"],
+                answer: 1
+            },
+            {
+                question: "Sikap paling utama yang WAJIB dimiliki oleh seorang siswa farmasi saat menimbang dan meracik obat adalah...",
+                options: ["Teliti, hati-hati, dan bertanggung jawab", "Cepat agar segera pulang", "Santai dan sering mengobrol", "Terburu-buru asal cepat selesai"],
+                answer: 0
+            },
+            {
+                question: "Dokumen tertulis dari dokter kepada apoteker untuk menyiapkan dan menyerahkan obat kepada pasien disebut...",
+                options: ["Brosur Obat", "Resep Dokter", "Faktur Pembelian", "Kwitansi"],
+                answer: 1
+            },
+            {
+                question: "Jika di pojok kiri atas lembar resep tertulis tanda 'R/', itu adalah singkatan dari kata 'Recipe' yang artinya...",
+                options: ["Ambillah", "Minumlah", "Hati-hati", "Berbahaya"],
+                answer: 0
+            },
+            {
+                question: "Industri Farmasi memiliki departemen yang khusus menguji bahan baku dan produk jadi di lab agar kualitasnya terjamin. Departemen ini disebut...",
+                options: ["Pemasaran (Marketing)", "Quality Control (Pengawasan Mutu)", "Gudang (Warehouse)", "Keuangan (Finance)"],
+                answer: 1
+            },
+            {
+                question: "Selain Apotek dan Rumah Sakit, tenaga kefarmasian juga bisa bekerja di Toko Obat berizin. Toko ini biasanya hanya boleh menjual obat golongan...",
+                options: ["Obat Keras dan Narkotika", "Obat Bebas dan Bebas Terbatas saja", "Semua jenis obat", "Hanya menjual jamu"],
+                answer: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswering = false;
+
+        function initQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('result-container').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('score-display').innerText = `Skor: ${score}`;
+            document.getElementById('q-total').innerText = quizData.length;
+            document.getElementById('quiz-msg-box').classList.add('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswering = false;
+            const q = quizData[currentQuestion];
+            document.getElementById('q-current').innerText = currentQuestion + 1;
+            document.getElementById('question-text').innerText = q.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = ''; // Kosongkan opsi lama
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-pharma-blue hover:bg-blue-50 font-bold text-lg text-gray-700 transition-all';
+                btn.innerHTML = `<span class="inline-block w-8 h-8 text-center leading-8 bg-gray-200 rounded-full mr-3">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (isAnswering) return; // Mencegah klik berkali-kali
+            isAnswering = true;
+            
+            const correctIndex = quizData[currentQuestion].answer;
+            const msgBox = document.getElementById('quiz-msg-box');
+            
+            msgBox.classList.remove('hidden', 'bg-red-100', 'text-red-600', 'bg-emerald-100', 'text-emerald-600');
+            
+            if (selectedIndex === correctIndex) {
+                // Benar
+                btnElement.classList.remove('border-gray-200', 'hover:bg-blue-50');
+                btnElement.classList.add('border-pharma-green', 'bg-emerald-100', 'text-pharma-green');
+                score += 100;
+                document.getElementById('score-display').innerText = `Skor: ${score}`;
+                
+                msgBox.classList.add('bg-emerald-100', 'text-emerald-600');
+                msgBox.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i>Jawaban Kamu Benar! Luar Biasa!';
+            } else {
+                // Salah
+                btnElement.classList.remove('border-gray-200', 'hover:bg-blue-50');
+                btnElement.classList.add('border-red-500', 'bg-red-100', 'text-red-600');
+                
+                // Tandai yang benar
+                const allBtns = document.getElementById('options-container').children;
+                allBtns[correctIndex].classList.remove('border-gray-200');
+                allBtns[correctIndex].classList.add('border-pharma-green', 'bg-emerald-50');
+                
+                msgBox.classList.add('bg-red-100', 'text-red-600');
+                msgBox.innerHTML = '<i class="fa-solid fa-circle-xmark mr-2"></i>Jawaban Kurang Tepat. Tetap Semangat!';
+            }
+
+            // Pindah ke soal berikutnya setelah 1.5 detik
+            setTimeout(() => {
+                msgBox.classList.add('hidden');
+                currentQuestion++;
+                if (currentQuestion < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 2000);
+        }
+
+        function showResult() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('result-container').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+            
+            const feedback = document.getElementById('feedback-msg');
+            if(score === quizData.length * 100) {
+                feedback.innerText = "Sempurna! Kamu calon Ahli Farmasi yang hebat!";
+                feedback.className = "text-xl font-bold text-pharma-green mb-8";
+            } else if (score > 0) {
+                feedback.innerText = "Kerja bagus! Pelajari lagi materinya agar lebih paham ya.";
+                feedback.className = "text-xl font-bold text-pharma-blue mb-8";
+            } else {
+                feedback.innerText = "Jangan menyerah! Ayo baca materi lagi dan coba kembali.";
+                feedback.className = "text-xl font-bold text-pharma-yellow mb-8";
+            }
+        }
+        
+        // Inisialisasi Kuis pertama kali saat halaman dimuat (tersembunyi)
+        initQuiz();
+
+
+        // ==========================================
+        // 3. SISTEM DRAG AND DROP (GAME)
+        // ==========================================
+        const dragItemsData = [
+            { id: 'item1', label: 'Mesin Cetak Tablet Besar', target: 'industri', icon: 'fa-gears' },
+            { id: 'item2', label: 'Meracik Resep Dokter', target: 'apotek', icon: 'fa-mortar-pestle' },
+            { id: 'item3', label: 'Mobil Boks Distribusi Obat', target: 'pbf', icon: 'fa-truck' },
+            { id: 'item4', label: 'Bekerja dengan jas lab di Pabrik', target: 'industri', icon: 'fa-user-nurse' },
+            { id: 'item5', label: 'Memberikan informasi obat ke Pasien', target: 'apotek', icon: 'fa-comments' }
+        ];
+
+        let selectedItemForTouch = null; // Fallback untuk mobile touch
+
+        function initDragDrop() {
+            const container = document.getElementById('draggable-container');
+            container.innerHTML = '';
+            
+            // Kosongkan dropzone
+            document.querySelectorAll('.dropped-items').forEach(zone => {
+                zone.innerHTML = '';
+            });
+
+            // Buat elemen draggable
+            dragItemsData.forEach(data => {
+                const item = document.createElement('div');
+                item.className = 'draggable bg-white shadow-md p-3 rounded-lg border-2 border-pharma-blue text-pharma-dark font-bold flex items-center gap-2 cursor-pointer md:cursor-grab active:cursor-grabbing hover:bg-blue-50';
+                item.draggable = true;
+                item.id = data.id;
+                item.dataset.target = data.target;
+                item.innerHTML = `<i class="fa-solid ${data.icon} text-pharma-blue"></i> ${data.label}`;
+                
+                // Event Listener Drag (Desktop)
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+
+                // Event Listener Click (Fallback untuk Mobile/Touch)
+                item.addEventListener('click', handleItemClickFallback);
+
+                container.appendChild(item);
+            });
+
+            // Setup Dropzones
+            document.querySelectorAll('.dropzone').forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+                // Fallback klik zona untuk mobile
+                zone.addEventListener('click', handleZoneClickFallback);
+            });
+            
+            hideDdNotification();
+        }
+
+        // --- Logika Drag Desktop ---
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            setTimeout(() => {
+                e.target.classList.add('opacity-50');
+            }, 0);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('opacity-50');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault(); // Diperlukan untuk membolehkan drop
+            const dropzone = e.target.closest('.dropzone');
+            if(dropzone) dropzone.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            const dropzone = e.target.closest('.dropzone');
+            if(dropzone) dropzone.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropzone = e.target.closest('.dropzone');
+            if(dropzone) {
+                dropzone.classList.remove('dragover');
+                const itemId = e.dataTransfer.getData('text/plain');
+                processDropMatch(itemId, dropzone);
+            }
+        }
+
+        // --- Logika Fallback Touch/Click (Mobile) ---
+        function handleItemClickFallback(e) {
+            // Hapus seleksi dari item lain
+            document.querySelectorAll('.draggable').forEach(el => el.classList.remove('ring-4', 'ring-pharma-yellow'));
+            
+            const item = e.target.closest('.draggable');
+            if(item.parentElement.id === 'draggable-container') {
+                selectedItemForTouch = item.id;
+                item.classList.add('ring-4', 'ring-pharma-yellow');
+                showDdNotification("Item dipilih! Sekarang tap/klik kotak tempat kerja di atas.", "pharma-yellow", "bg-amber-100");
+            }
+        }
+
+        function handleZoneClickFallback(e) {
+            if(!selectedItemForTouch) return;
+            
+            const dropzone = e.target.closest('.dropzone');
+            if(dropzone) {
+                processDropMatch(selectedItemForTouch, dropzone);
+                selectedItemForTouch = null; // Reset
+                document.querySelectorAll('.draggable').forEach(el => el.classList.remove('ring-4', 'ring-pharma-yellow'));
+            }
+        }
+
+        // --- Proses Pengecekan Kecocokan ---
+        function processDropMatch(itemId, dropzone) {
+            const item = document.getElementById(itemId);
+            if(!item) return;
+
+            const expectedTarget = item.dataset.target;
+            const dropzoneTarget = dropzone.dataset.target;
+
+            if(expectedTarget === dropzoneTarget) {
+                // Berhasil cocok
+                item.draggable = false; // matikan drag
+                item.classList.remove('cursor-pointer', 'md:cursor-grab', 'hover:bg-blue-50', 'border-pharma-blue');
+                item.classList.add('border-pharma-green', 'bg-emerald-50', 'cursor-default');
+                item.removeEventListener('click', handleItemClickFallback); // matikan klik
+                
+                // Pindahkan ke kontainer dropzone
+                dropzone.querySelector('.dropped-items').appendChild(item);
+                
+                showDdNotification("Benar sekali! Pekerjaan telah diletakkan di tempat yang tepat.", "pharma-green", "bg-emerald-100");
+                
+                // Cek apakah menang
+                checkWinCondition();
+            } else {
+                // Salah
+                showDdNotification("Ups! Sepertinya itu bukan tempat kerja yang tepat. Coba lagi!", "red-500", "bg-red-100");
+                // Efek getar sederhana menggunakan vanilla js/css class temporal
+                item.style.transform = 'translateX(-10px)';
+                setTimeout(() => item.style.transform = 'translateX(10px)', 100);
+                setTimeout(() => item.style.transform = 'translateX(0)', 200);
+            }
+        }
+
+        function showDdNotification(msg, textColor, bgColor) {
+            const notif = document.getElementById('dd-notification');
+            notif.innerText = msg;
+            notif.className = `mb-6 p-4 rounded-xl text-center font-bold text-xl border-2 shadow-sm transition-all text-${textColor} ${bgColor} border-${textColor}`;
+            notif.classList.remove('hidden');
+            
+            setTimeout(() => {
+                if(!notif.innerText.includes("Hore")) { // Jangan sembunyikan jika pesan menang
+                    hideDdNotification();
+                }
+            }, 3000);
+        }
+
+        function hideDdNotification() {
+            document.getElementById('dd-notification').classList.add('hidden');
+        }
+
+        function checkWinCondition() {
+            const remaining = document.getElementById('draggable-container').children.length;
+            if(remaining === 0) {
+                const notif = document.getElementById('dd-notification');
+                notif.innerHTML = '<i class="fa-solid fa-star text-pharma-yellow mr-2"></i> Hore! Kamu berhasil mencocokkan semuanya! Kamu luar biasa!';
+                notif.className = `mb-6 p-4 rounded-xl text-center font-bold text-xl border-2 shadow-md transition-all text-pharma-green bg-emerald-100 border-pharma-green animate-pulse`;
+                notif.classList.remove('hidden');
+            }
+        }
+
+        function resetDragDrop() {
+            initDragDrop();
+        }
+
+        // Inisialisasi Drag Drop
+        initDragDrop();
+
+    </script>
+</body>
+</html>
